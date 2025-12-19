@@ -10,6 +10,10 @@ import { createChatAgent } from './src/agent.js';
 
 dotenv.config();
 
+/**
+ * Starts the interactive CLI loop, wiring environment configuration, Tavily search,
+ * Gemini model, and the chat agent that answers user prompts.
+ */
 async function startInteractive() {
     try {
 

@@ -1,16 +1,22 @@
 import { z } from 'zod';
 import { searchWeb } from './search.js';
 
-
-
+/**
+ * Registers a tool with the AI runtime that performs a web search using the Tavily client
+ * and returns a formatted string of results.
+ *
+ * @param {ReturnType<typeof import('genkit/beta').genkit>} ai - Genkit instance used to define tools.
+ * @param {ReturnType<typeof import('@tavily/core').tavily>} client - Tavily client for performing searches.
+ * @returns {ReturnType<typeof ai.defineTool>} Configured search tool ready to be attached to prompts.
+ */
 export function createSearchTool(ai, client) {
     return ai.defineTool({
         name: 'searchWeb',
-        description: '',
+        description: 'Searches the web for a user query and returns formatted results.',
         inputSchema: z.object({
             query: z.string().describe('The user query to search for.')
         }),
-        outputSchema: z.string().describe('The search results as a formatted string inscluding titles, snippets, and URLs.')
+        outputSchema: z.string().describe('The search results as a formatted string including titles, snippets, and URLs.')
 
     }, async (input) => {
         const searchResults = await searchWeb(client, input.query, 5);
@@ -23,6 +29,16 @@ export function createSearchTool(ai, client) {
     });
 
 }
+
+/**
+ * Creates a chat agent configured with a search prompt and the web search tool to
+ * answer user queries with up-to-date information.
+ *
+ * @param {ReturnType<typeof import('genkit/beta').genkit>} ai - Genkit instance used to define prompts.
+ * @param {ReturnType<typeof import('@tavily/core').tavily>} client - Tavily client passed to the search tool.
+ * @param {ReturnType<typeof import('@genkit-ai/google-genai').googleAI.model>} model - Gemini model used by the prompt.
+ * @returns {ReturnType<typeof ai.chat>} Chat agent capable of handling user queries.
+ */
 export function createChatAgent (ai, client, model) {
  
     const searchTool = createSearchTool(ai, client);
@@ -57,5 +73,3 @@ export function createChatAgent (ai, client, model) {
     return ai.chat(searchPrompt)
 
 }
-
-
